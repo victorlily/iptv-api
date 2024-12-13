@@ -37,6 +37,7 @@ def get_resolution_value(resolution_str):
 class ConfigManager:
 
     def __init__(self):
+        self.config = None
         self.load()
 
     def __getattr__(self, name, *args, **kwargs):
@@ -49,6 +50,20 @@ class ConfigManager:
     @property
     def open_update(self):
         return self.config.getboolean("Settings", "open_update", fallback=True)
+
+    @property
+    def open_use_cache(self):
+        return self.config.getboolean("Settings", "open_use_cache", fallback=True)
+
+    @property
+    def open_request(self):
+        return self.config.getboolean("Settings", "open_request", fallback=False)
+
+    @property
+    def open_filter_speed(self):
+        return self.config.getboolean(
+            "Settings", "open_filter_speed", fallback=True
+        )
 
     @property
     def open_filter_resolution(self):
@@ -71,7 +86,7 @@ class ConfigManager:
         return [
             type.strip().lower()
             for type in self.config.get(
-                "Settings", "ipv_type_prefer", fallback="ipv4"
+                "Settings", "ipv_type_prefer", fallback="auto"
             ).split(",")
         ]
 
@@ -126,6 +141,10 @@ class ConfigManager:
             "subscribe": self.subscribe_num,
             "online_search": self.online_search_num,
         }
+
+    @property
+    def min_speed(self):
+        return self.config.getfloat("Settings", "min_speed", fallback=0.5)
 
     @property
     def min_resolution(self):
@@ -285,16 +304,6 @@ class ConfigManager:
     @property
     def online_search_page_num(self):
         return config.getint("Settings", "online_search_page_num", fallback=1)
-
-    @property
-    def subscribe_urls(self):
-        return [
-            url.strip()
-            for url in self.config.get("Settings", "subscribe_urls", fallback="").split(
-                ","
-            )
-            if url.strip()
-        ]
 
     @property
     def delay_weight(self):
